@@ -126,8 +126,11 @@
                                     Width="150"
                                     Margin="5"
                                     VerticalAlignment="Top"
-                                    Text="{Binding Path=ClassesFilterExpression, UpdateSourceTrigger=PropertyChanged}"
-                                    TextChanged="TextBox_TextChanged"/>
+                                    TextChanged="TextBox_TextChanged">
+                                    <TextBox.Text>
+                                        <Binding Path="ClassesFilterExpression" UpdateSourceTrigger="PropertyChanged" Delay="500"></Binding>
+                                    </TextBox.Text>
+                                </TextBox>
 
                                 <Button Command="{Binding MakeTopObjectCommand}" ToolTip="Make top object">
                                     <Image SnapsToDevicePixels="True" Source="{StaticResource ImportIcon}" />
