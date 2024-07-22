@@ -1,21 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using IronPython.Runtime.Operations;
+using moddingSuite.ViewModel.Ndf;
 using moddingSuite.Model.Ndfbin;
 using moddingSuite.Model.Ndfbin.Types;
 using moddingSuite.Model.Ndfbin.Types.AllTypes;
 using moddingSuite.View.DialogProvider;
 using moddingSuite.ViewModel.Base;
+using moddingSuite.ViewModel.Filter;
 
 namespace moddingSuite.ViewModel.Ndf
 {
     public class NdfObjectViewModel : ObjectWrapperViewModel<NdfObject>
     {
+        //private ObservableCollection<PropertyFilterExpression> _propertyFilterExpressions = new ObservableCollection<PropertyFilterExpression>();
         public NdfObjectViewModel(NdfObject obj, ViewModelBase parentVm)
             : base(obj, parentVm)
         {
@@ -31,7 +35,10 @@ namespace moddingSuite.ViewModel.Ndf
             RemovePropertyCommand = new ActionCommand(RemovePropertyExecute, RemovePropertyCanExecute);
             CopyToInstancesCommand = new ActionCommand(CopyToInstancesExecute);
         }
-
+        //public ObservableCollection<PropertyFilterExpression> PropertyFilterExpressions2
+        //{
+           // get { return _propertyFilterExpressions; }
+        //}
         public uint Id
         {
             get { return Object.Id; }
@@ -73,8 +80,14 @@ namespace moddingSuite.ViewModel.Ndf
         private void AddPropertyExecute(object obj)
         {
             var cv = CollectionViewSource.GetDefaultView(PropertyValues);
+            
+            if (obj == null)
+            { 
+            obj = cv.CurrentItem as NdfPropertyValue;
+            }
 
-            var item = cv.CurrentItem as NdfPropertyValue;
+            var item = obj as NdfPropertyValue;
+
 
             if (item == null)
                 return;
@@ -140,16 +153,25 @@ namespace moddingSuite.ViewModel.Ndf
         private void CopyToInstancesExecute(object obj)
         {
             var cv = CollectionViewSource.GetDefaultView(PropertyValues);
-            var result = MessageBox.Show("Do you want to copy this instance value to ALL other instances? If unsure, press no", "Confirmation",
+            
+            var result = MessageBox.Show("Do you want to copy this instance value to ALL Filtered other instances? If unsure, press no", "Confirmation",
                 MessageBoxButton.YesNo, MessageBoxImage.Question,defaultResult: MessageBoxResult.No);
 
             if (result == MessageBoxResult.Yes)
             {
                 var item = cv.CurrentItem as NdfPropertyValue;
-
-                foreach (var instance in item.Instance.Class.Instances)
+                //finds filtered instances list in steps to typecast correctly
+                var ParentVmFinder = this.ParentVm as NdfEditorMainViewModel;
+                var CCVFinder = ParentVmFinder.ClassesCollectionView.CurrentItem as NdfClassViewModel;
+                var ICV = CCVFinder.InstancesCollectionView as ListCollectionView;
+                foreach (NdfObjectViewModel instance in ICV)
                 {
+                    
                     var property = instance.PropertyValues.First(x => x.Property == item.Property);
+                    if (property.Type == NdfType.Unset)
+                    {
+                        AddPropertyExecute(property);
+                    }
                     property.BeginEdit();
                     property.Value = item.Value;
                     property.EndEdit();
