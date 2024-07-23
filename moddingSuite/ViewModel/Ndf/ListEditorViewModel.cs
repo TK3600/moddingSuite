@@ -6,11 +6,14 @@ using moddingSuite.View.DialogProvider;
 using moddingSuite.View.Ndfbin.Viewer;
 using moddingSuite.ViewModel.Base;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
 
 namespace moddingSuite.ViewModel.Ndf
@@ -88,7 +91,7 @@ namespace moddingSuite.ViewModel.Ndf
 
             Value.Remove(val);
         }
-
+        
         private void AddRowOfCommonTypeExecute(object obj)
         {
             var cv = CollectionViewSource.GetDefaultView(Value);
@@ -103,13 +106,63 @@ namespace moddingSuite.ViewModel.Ndf
                 Value.GroupBy(x => x.Value.Type).OrderByDescending(gp => gp.Count()).Select(x => x.First().Value.Type).
                     Single();
             var val = cv.CurrentItem as CollectionItemValueHolder;
-            
-            //old method
-            //var wrapper =
-               // new CollectionItemValueHolder(NdfTypeManager.GetValue(new byte[NdfTypeManager.SizeofType(type)], type, NdfbinManager), NdfbinManager);
+            if (val == null)
+                return;
 
-            var wrapper =
-                new CollectionItemValueHolder(val.Value, NdfbinManager);
+
+            CollectionItemValueHolder wrapper = null;
+            switch (type)
+            {
+                case NdfType.ObjectReference:
+                    var objref = val.Value as NdfObjectReference;
+                    wrapper = new CollectionItemValueHolder(new NdfObjectReference(objref.Class, objref.InstanceId), NdfbinManager);
+
+                    break;
+
+                case NdfType.Map:
+                    var map = val.Value as NdfMap;
+                    NdfValueWrapper keyvalue = null;
+                    NdfValueWrapper valvalue = null;
+                    MapValueHolder key = null;
+                    MapValueHolder value = null;
+                    var tempvalue = map.Value as MapValueHolder;
+                    switch (map.Key.Value.Type)
+                    {
+                        case NdfType.ObjectReference:
+                            var mapobjkeyref = map.Key.Value as NdfObjectReference;
+                            keyvalue= new NdfObjectReference(mapobjkeyref.Class, mapobjkeyref.InstanceId);
+                            key = new MapValueHolder(keyvalue, NdfbinManager);
+
+                            break;
+                        case NdfType.Map:
+                            throw new ArgumentException("Map within map is currently not implemented", nameof(map));
+                            
+                        default:
+                            key = new MapValueHolder(NdfTypeManager.GetValue(new byte[NdfTypeManager.SizeofType(map.Key.Value.Type)], map.Key.Value.Type, NdfbinManager), NdfbinManager);
+                            break;
+
+                    }  
+                    switch (tempvalue.Value.Type)
+                    {
+                        case NdfType.ObjectReference:
+                            var mapobjvalref = tempvalue.Value as NdfObjectReference;
+                            valvalue = new NdfObjectReference(mapobjvalref.Class, mapobjvalref.InstanceId);
+                            value = new MapValueHolder(valvalue, NdfbinManager);
+                            break;
+                        case NdfType.Map:
+                            throw new ArgumentException("Map within map is currently not implemented", nameof(map));
+                        default:
+                            value = new MapValueHolder(NdfTypeManager.GetValue(new byte[NdfTypeManager.SizeofType(tempvalue.Value.Type)], tempvalue.Value.Type, NdfbinManager), NdfbinManager);
+                            break;
+                    }
+                     
+
+                    wrapper = new CollectionItemValueHolder(new NdfMap(key, value, NdfbinManager),NdfbinManager);
+                    break;
+                default:
+                    wrapper = new CollectionItemValueHolder(NdfTypeManager.GetValue(new byte[NdfTypeManager.SizeofType(type)], type, NdfbinManager), NdfbinManager);
+                    break;
+            }
 
             if (IsInsertMode)
             {
