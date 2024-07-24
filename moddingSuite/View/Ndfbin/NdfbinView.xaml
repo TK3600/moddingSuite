@@ -128,7 +128,7 @@
                                     VerticalAlignment="Top"
                                     TextChanged="TextBox_TextChanged">
                                     <TextBox.Text>
-                                        <Binding Path="ClassesFilterExpression" UpdateSourceTrigger="PropertyChanged" Delay="100"></Binding>
+                                        <Binding Path="ClassesFilterExpression" UpdateSourceTrigger="PropertyChanged" Delay="200"></Binding>
                                     </TextBox.Text>
                                 </TextBox>
 
