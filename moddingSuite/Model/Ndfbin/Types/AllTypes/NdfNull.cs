@@ -16,7 +16,7 @@ namespace moddingSuite.Model.Ndfbin.Types.AllTypes
 
         public override byte[] GetBytes()
         {
-            throw new InvalidOperationException("Null is not to be saved");
+            return null;
         }
 
         public override byte[] GetNdfText()
