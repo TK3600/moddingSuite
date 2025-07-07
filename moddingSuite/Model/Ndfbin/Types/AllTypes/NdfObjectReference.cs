@@ -28,7 +28,8 @@ namespace moddingSuite.Model.Ndfbin.Types.AllTypes
                 
                 if (value != null)
                 {
-                    OnPropertyChanged("Class");
+                    OnPropertyChanged(() => Class);
+                    //OnPropertyChanged("Class");
                 }
             }
         }
@@ -39,7 +40,8 @@ namespace moddingSuite.Model.Ndfbin.Types.AllTypes
             set
             {
                 _instanceId = value;
-                OnPropertyChanged("InstanceId");
+                //OnPropertyChanged("InstanceId");
+                OnPropertyChanged(() => InstanceId);
             }
         }
 
@@ -58,15 +60,15 @@ namespace moddingSuite.Model.Ndfbin.Types.AllTypes
                 else
                     InstanceId = value.Id;
 
-                OnPropertyChanged("Instance");
-                OnPropertyChanged("InstanceId");
+                OnPropertyChanged(() => Instance);
+                OnPropertyChanged(() => InstanceId);
             }
         }
 
         public override string ToString()
         {
             if (Class == null)
-                return string.Format("Class does not exist : {0}", InstanceId);
+               return string.Format("Class does not exist : {0}", InstanceId);
 
             return string.Format("{0} : {1} ({2}) - {3}", Class.Id, InstanceId, Instance.IsTopObject, Class.Name);
         }
@@ -75,7 +77,7 @@ namespace moddingSuite.Model.Ndfbin.Types.AllTypes
         {
             var refereceData = new List<byte>();
 
-            //if (Class == null) { return null; }
+            if (Class == null) { return null; }
 
             refereceData.AddRange(BitConverter.GetBytes(InstanceId));
 

@@ -408,7 +408,6 @@ namespace moddingSuite.ViewModel.Ndf
                 {
                     BuildClassesCollectionView();
                 }
-
                 return _classesCollectionView;
             }
         }
