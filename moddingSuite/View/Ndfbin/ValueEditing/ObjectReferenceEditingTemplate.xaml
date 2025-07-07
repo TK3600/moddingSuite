@@ -12,8 +12,12 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+        <Grid.Resources>
+            <CollectionViewSource x:Key="ClassCollectionSource"
+                                  Source="{Binding Class.Manager.Classes}"/>
+        </Grid.Resources>
         <!--<Label Content="{Binding Path=Class.Name}" />-->
-        <local:FilteredComboBox x:Name="ComboBoxClass" Grid.Column="0" ItemsSource="{Binding Class.Manager.Classes}" DisplayMemberPath="Name" SelectedItem="{Binding Path=Class}" IsEditable="True" IsTextSearchEnabled="false">
+        <local:FilteredComboBox x:Name="ComboBoxClass" Grid.Column="0" MinimumSearchLength="1" ItemsSource="{Binding Source={StaticResource ClassCollectionSource}}" DisplayMemberPath="Name" SelectedItem="{Binding Path=Class}" IsEditable="True" IsTextSearchEnabled="false">
             <local:FilteredComboBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel />

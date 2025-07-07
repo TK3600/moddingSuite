@@ -26,6 +26,7 @@ namespace moddingSuite.Model.Ndfbin.ChangeManager
             {
                 _newKey = value;
                 OnPropertyChanged("NewKey");
+                OnPropertyChanged(() => NewKey);
             }
         }
 
@@ -36,6 +37,7 @@ namespace moddingSuite.Model.Ndfbin.ChangeManager
             {
                 _newValue = value;
                 OnPropertyChanged("NewValue");
+                OnPropertyChanged(() => NewValue);
             }
         }
 
